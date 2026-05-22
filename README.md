@@ -26,7 +26,8 @@ Live website: [https://perfect-plants-sku.vercel.app/shopping](https://perfect-p
 - Gives every product a full product page with four images, description, specs, pricing, trust badges, and recommendations.
 - Adds products to a cart drawer or cart page.
 - Gates checkout behind a bundle offer popup with a heavy discount.
-- Updates realtime demo analytics only after checkout is completed.
+- Updates dashboard, analytics, campaign rows, funnel metrics, revenue charts, and best-performing offers only after checkout is completed.
+- Attributes live analytics to the exact purchased SKU and bundle outcome.
 - Syncs storefront analytics across open browser tabs with `localStorage` and `BroadcastChannel`.
 - Includes a Shopify Thank You page Checkout UI Extension targeting `purchase.thank-you.block.render`.
 - Provides backend APIs for campaign matching, discounts, analytics, and Shopify webhooks.

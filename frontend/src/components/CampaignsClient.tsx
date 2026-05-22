@@ -3,9 +3,9 @@
 import {Copy, Edit3, MoreHorizontal, PauseCircle, PlayCircle, Search, Trash2} from 'lucide-react';
 import {useMemo, useState} from 'react';
 import {StatusBadge} from '@/components/StatusBadge';
-import {campaignRows} from '@/lib/mock-data';
 import {formatCurrency} from '@/lib/format';
 import {useStorefrontRealtime} from '@/hooks/useStorefrontRealtime';
+import {buildLiveCampaignRows} from '@/lib/realtime-analytics';
 
 export function CampaignsClient() {
   const [search, setSearch] = useState('');
@@ -13,23 +13,14 @@ export function CampaignsClient() {
   const {stats} = useStorefrontRealtime();
 
   const rows = useMemo(() => {
-    const liveRows = campaignRows.map((campaign) =>
-      campaign.id === 'home-decor-bundle'
-        ? {
-            ...campaign,
-            views: campaign.views + stats.productViews,
-            clicks: campaign.clicks + stats.cartAdds,
-            revenue: campaign.revenue + stats.campaignRevenue,
-          }
-        : campaign,
-    );
+    const liveRows = buildLiveCampaignRows(stats);
 
     return liveRows.filter((campaign) => {
       const matchesSearch = campaign.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = status === 'All' || campaign.status === status;
       return matchesSearch && matchesStatus;
     });
-  }, [search, stats.campaignRevenue, stats.cartAdds, stats.productViews, status]);
+  }, [search, stats, status]);
 
   return (
     <div className="space-y-4">

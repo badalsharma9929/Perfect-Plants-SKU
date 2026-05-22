@@ -1,11 +1,11 @@
 import {funnelSteps} from '@/lib/mock-data';
 
-export function Funnel() {
-  const max = Math.max(...funnelSteps.map((step) => step.value));
+export function Funnel({steps = funnelSteps}: {steps?: typeof funnelSteps}) {
+  const max = Math.max(...steps.map((step) => step.value));
 
   return (
     <div className="space-y-4">
-      {funnelSteps.map((step) => (
+      {steps.map((step) => (
         <div key={step.label}>
           <div className="mb-2 flex items-center justify-between text-sm">
             <span className="font-semibold text-ink">{step.label}</span>

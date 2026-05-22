@@ -12,7 +12,7 @@ import {
 import {useEffect, useState} from 'react';
 import {revenueSeries} from '@/lib/mock-data';
 
-export function RevenueChart() {
+export function RevenueChart({data = revenueSeries}: {data?: typeof revenueSeries}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function RevenueChart() {
   return (
     <div className="h-[330px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={revenueSeries} margin={{top: 12, right: 10, left: 0, bottom: 0}}>
+        <AreaChart data={data} margin={{top: 12, right: 10, left: 0, bottom: 0}}>
           <defs>
             <linearGradient id="revenueFill" x1="0" x2="0" y1="0" y2="1">
               <stop offset="5%" stopColor="#6D28D9" stopOpacity={0.24} />
@@ -39,7 +39,7 @@ export function RevenueChart() {
             axisLine={false}
             tickLine={false}
             tick={{fill: '#6B7280', fontSize: 12}}
-            tickFormatter={(value) => `₹${Number(value) / 1000}k`}
+            tickFormatter={(value) => `Rs ${Number(value) / 1000}k`}
           />
           <Tooltip
             cursor={{stroke: '#DDD6FE', strokeWidth: 2}}
@@ -48,7 +48,7 @@ export function RevenueChart() {
               borderColor: '#E5E7EB',
               boxShadow: '0 14px 30px rgba(17, 24, 39, 0.10)',
             }}
-            formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Revenue']}
+            formatter={(value) => [`Rs ${Number(value).toLocaleString('en-IN')}`, 'Revenue']}
           />
           <Area
             type="monotone"

@@ -194,7 +194,22 @@ export function ShoppingRealtimeClient() {
   function placeOrder() {
     if (!cart.length) return;
     const heroProduct = cart[0]?.product.name ?? 'Home decor order';
-    trackCheckout(totals.total, totals.bundleValue, heroProduct);
+    trackCheckout(
+      totals.total,
+      totals.bundleValue,
+      heroProduct,
+      cart.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        category: item.product.category,
+        sectionId: item.product.sectionId,
+        quantity: item.quantity,
+        lineRevenue: getLineTotal(item),
+        bundleValue: item.bundleSelected ? item.product.bundle.companionPrice * item.quantity : 0,
+        bundleSelected: item.bundleSelected,
+        companionName: item.bundleSelected ? item.product.bundle.companionName : undefined,
+      })),
+    );
     setCart([]);
     setDrawerOpen(false);
     setView('success');
