@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8f9fc;
+  --foreground: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: #ede9fe;
+  color: #321068;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+@layer components {
+  .field-input {
+    @apply h-11 w-full rounded-xl border border-line bg-white px-3 text-sm font-medium text-ink outline-none transition placeholder:text-gray-400 focus:border-brand focus:ring-4 focus:ring-brand/10;
+  }
+}

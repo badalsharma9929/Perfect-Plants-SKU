@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum TriggerType {
+  PRODUCT
+  COLLECTION
+  PRODUCT_TAG
+  ORDER_VALUE
+  CUSTOMER_TYPE
+}
+
+enum OfferType {
+  SINGLE_PRODUCT
+  BUNDLE
+  COLLECTION_REDIRECT
+  MYSTERY
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+  BUY_X_GET_Y
+}
+
+enum DestinationType {
+  PRODUCT_PAGE
+  CART
+  LANDING_PAGE
+}
+
+model Store {
+  id          String    @id @default(cuid())
+  shopDomain  String    @unique
+  accessToken String
+  currency    String?   @default("INR")
+  installedAt DateTime  @default(now())
+  uninstalledAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  campaigns Campaign[]
+  discounts Discount[]
+  views     OfferView[]
+  clicks    OfferClick[]
+  purchases OfferPurchase[]
+
+  @@index([shopDomain])
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  storeId     String
+  name        String
+  status      CampaignStatus @default(DRAFT)
+  triggerType TriggerType    @default(PRODUCT)
+  offerType   OfferType      @default(SINGLE_PRODUCT)
+  priority    Int            @default(0)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  store     Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  rule      Rule?
+  offer     Offer?
+  views     OfferView[]
+  clicks    OfferClick[]
+  purchases OfferPurchase[]
+  discounts Discount[]
+
+  @@index([storeId, status])
+  @@index([storeId, priority])
+}
+
+model Rule {
+  id                  String   @id @default(cuid())
+  campaignId          String   @unique
+  triggerProductId    String?
+  triggerCollectionId String?
+  triggerProductTag   String?
+  minOrderValue       Decimal? @db.Decimal(12, 2)
+  customerType        String?
+  paymentType         String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([triggerProductId])
+  @@index([triggerCollectionId])
+}
+
+model Offer {
+  id                String          @id @default(cuid())
+  campaignId        String          @unique
+  offerProductId    String
+  offerVariantId    String?
+  offerProductHandle String?
+  offerProductTitle String
+  offerProductImage String?
+  offerDescription  String?
+  offerPrice        Decimal?        @db.Decimal(12, 2)
+  compareAtPrice    Decimal?        @db.Decimal(12, 2)
+  discountType      DiscountType    @default(PERCENTAGE)
+  discountValue     Decimal         @db.Decimal(12, 2)
+  destinationType   DestinationType @default(PRODUCT_PAGE)
+  destinationUrl    String?
+  headline          String          @default("Special Offer Unlocked")
+  subheadline       String          @default("Because you just placed an order, you can now get this product at a private discounted price.")
+  ctaText           String          @default("Claim This Offer")
+  urgencyText       String?         @default("Private offer expires soon")
+  timerEnabled      Boolean         @default(true)
+  timerMinutes      Int             @default(15)
+  backgroundColor   String          @default("#FFFFFF")
+  borderRadius      Int             @default(20)
+  buttonStyle       String          @default("solid")
+  showComparePrice  Boolean         @default(true)
+  showTrustBadges   Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  discounts Discount[]
+}
+
+model OfferView {
+  id         String   @id @default(cuid())
+  storeId    String
+  campaignId String
+  orderId    String?
+  checkoutToken String?
+  customerType String?
+  createdAt  DateTime @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, createdAt])
+  @@index([campaignId, createdAt])
+}
+
+model OfferClick {
+  id         String   @id @default(cuid())
+  storeId    String
+  campaignId String
+  orderId    String?
+  checkoutToken String?
+  redirectUrl String?
+  createdAt  DateTime @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, createdAt])
+  @@index([campaignId, createdAt])
+}
+
+model OfferPurchase {
+  id          String   @id @default(cuid())
+  storeId     String
+  campaignId  String
+  orderId     String
+  attributionOrderId String?
+  revenue     Decimal  @db.Decimal(12, 2)
+  currency    String   @default("INR")
+  discountCode String?
+  createdAt   DateTime @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, createdAt])
+  @@index([campaignId, createdAt])
+  @@index([discountCode])
+}
+
+model Discount {
+  id          String       @id @default(cuid())
+  storeId     String
+  campaignId  String
+  offerId     String
+  code        String
+  shopifyId   String?
+  type        DiscountType
+  value       Decimal      @db.Decimal(12, 2)
+  startsAt    DateTime     @default(now())
+  endsAt      DateTime?
+  usageLimit  Int?         @default(1)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  offer    Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, code])
+  @@index([campaignId])
+}

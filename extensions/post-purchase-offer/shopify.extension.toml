@@ -1,0 +1,31 @@
+api_version = "2025-10"
+
+[[extensions]]
+type = "ui_extension"
+name = "Post Purchase Offer Block"
+handle = "post-purchase-offer-block"
+uid = "3d4f87fe-4af8-4dd7-a8f3-ppre00000001"
+
+[[extensions.targeting]]
+target = "purchase.thank-you.block.render"
+module = "./src/ThankYou.tsx"
+
+[[extensions.targeting]]
+target = "customer-account.order-status.block.render"
+module = "./src/OrderStatus.tsx"
+
+[extensions.capabilities]
+network_access = true
+api_access = true
+
+[[extensions.settings.fields]]
+key = "api_url"
+type = "single_line_text_field"
+name = "Backend API URL"
+description = "Public URL for the Post Purchase Revenue Engine API."
+
+[[extensions.settings.fields]]
+key = "fallback_product_image"
+type = "single_line_text_field"
+name = "Fallback product image"
+description = "Image URL used when an offer product has no image."
